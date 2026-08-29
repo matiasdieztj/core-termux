@@ -1,10 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/bash
-
 import "@/utils/log"
 import "@/utils/colors"
 import "@/utils/version"
 import "@/utils/uninstall"
-
+import "@/utils/optimizer"
 CACTUS_CLI_LOG_FILE="$CORE_CACHE/install_ai.log"
 CACTUS_CLI_DATA_DIR="$HOME/.local/share/core-termux-data/cactus-cli"
 CACTUS_CLI_GLIBC_PYTHON="$PREFIX/glibc/bin/python"
@@ -311,29 +310,29 @@ _install_cactus_cli_proot() {
 }
 
 install_cactus_cli() {
-  if command -v cactus &>/dev/null; then
-    log_info "Cactus Engine CLI is already installed"
-    return 2
-  fi
-
-  log_info "Select installation method for Cactus Engine CLI:"
-
-  read_select "Installation method" SELECTED_METHOD \
-    "glibc (recommended)" \
-    "glibc + proot (bad system call)" \
-    "proot-distro (ubuntu container)"
-
-  case "$SELECTED_METHOD" in
-  *"glibc + proot"*)
-    _cactus_cli_install_proot_glibc
-    ;;
-  *"glibc (recommended)"*)
-    _cactus_cli_install_native
-    ;;
-  *proot-distro*)
-    _install_cactus_cli_proot
-    ;;
-  esac
+if command -v cactus &>/dev/null; then
+log_info "Cactus Engine CLI is already installed"
+return 2
+fi
+check_or_prompt_preference
+setup_python_env
+log_info "Select installation method for Cactus Engine CLI:"
+read_select "Installation method" SELECTED_METHOD \
+"glibc (recommended)" \
+"glibc + proot (bad system call)" \
+"proot-distro (ubuntu container)"
+case "$SELECTED_METHOD" in
+*"glibc + proot"*)
+_cactus_cli_install_proot_glibc
+;;
+*"glibc (recommended)"*)
+_cactus_cli_install_native
+;;
+*proot-distro*)
+_install_cactus_cli_proot
+;;
+esac
+clean_build_residuos
 }
 
 uninstall_cactus_cli() {
