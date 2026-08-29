@@ -1,9 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/bash
-
 import "@/utils/log"
 import "@/utils/version"
 import "@/utils/uninstall"
-
+import "@/utils/optimizer"
 LOG_FILE="$CORE_CACHE/install_lang.log"
 
 _install_python_pkg() {
@@ -19,16 +18,18 @@ _install_python_pkg_impl() {
 }
 
 install_python() {
-	if command -v python &>/dev/null; then
-		log_info "Python is already installed"
-		return 2
-	fi
-	log_info "Installing Python..."
-
-	mkdir -p "$(dirname "$LOG_FILE")"
-	_install_python_pkg || return 1
-	log_success "Python installed"
-	return 0
+if command -v python &>/dev/null; then
+log_info "Python is already installed"
+return 2
+fi
+log_info "Installing Python..."
+check_or_prompt_preference
+setup_python_env
+mkdir -p "$(dirname "$LOG_FILE")"
+_install_python_pkg || return 1
+clean_build_residuos
+log_success "Python installed"
+return 0
 }
 
 _uninstall_python_pkg() {
