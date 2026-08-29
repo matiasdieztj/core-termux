@@ -1,11 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/bash
-
 import "@/utils/log"
 import "@/utils/version"
 import "@/utils/uninstall"
 import "@/tools/lang/bun/install"
 import "@/utils/walkie"
-
+import "@/utils/optimizer"
 LOG_FILE="$CORE_CACHE/install_ai.log"
 
 _supercode_dependencies() {
@@ -30,20 +29,18 @@ _install_supercode_bun_impl() {
 }
 
 install_supercode() {
-  if command -v supercode &>/dev/null; then
-    log_info "SuperCode is already installed"
-    return 2
-  fi
-
-  log_info "Installing SuperCode..."
-
-  mkdir -p "$(dirname "$LOG_FILE")"
-
-  _supercode_dependencies || return 1
-  _install_supercode_bun || return 1
-
-  log_success "SuperCode installed successfully"
-  return 0
+if command -v supercode &>/dev/null; then
+log_info "SuperCode is already installed"
+return 2
+fi
+log_info "Installing SuperCode..."
+check_or_prompt_preference
+mkdir -p "$(dirname "$LOG_FILE")"
+_supercode_dependencies || return 1
+_install_supercode_bun || return 1
+clean_build_residuos
+log_success "SuperCode installed successfully"
+return 0
 }
 
 uninstall_supercode() {
