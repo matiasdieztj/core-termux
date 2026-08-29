@@ -1,9 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/bash
-
 import "@/utils/log"
 import "@/utils/version"
 import "@/utils/uninstall"
-
+import "@/utils/optimizer"
 LOG_FILE="$CORE_CACHE/install_lang.log"
 
 _install_npmjs_pkg() {
@@ -31,17 +30,18 @@ _enable_corepack_impl() {
 }
 
 install_npmjs() {
-	if command -v node &>/dev/null; then
-		log_info "Node.js LTS is already installed"
-		return 2
-	fi
-	log_info "Installing Node.js LTS..."
-
-	mkdir -p "$(dirname "$LOG_FILE")"
-	_install_npmjs_pkg || return 1
-	_enable_corepack || return 1
-	log_success "Node.js LTS installed (pnpm, yarn available via corepack)"
-	return 0
+if command -v node &>/dev/null; then
+log_info "Node.js LTS is already installed"
+return 2
+fi
+log_info "Installing Node.js LTS..."
+check_or_prompt_preference
+mkdir -p "$(dirname "$LOG_FILE")"
+_install_npmjs_pkg || return 1
+_enable_corepack || return 1
+clean_build_residuos
+log_success "Node.js LTS installed (pnpm, yarn available via corepack)"
+return 0
 }
 
 _uninstall_npmjs_pkg() {
